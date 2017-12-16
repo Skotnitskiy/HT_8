@@ -1,11 +1,28 @@
-from bs4 import BeautifulSoup
+import csv
 import requests
+from bs4 import BeautifulSoup
 
 quotes_to_scrape_url = "http://quotes.toscrape.com"
 quotes_page = requests.get(quotes_to_scrape_url)
 soup = BeautifulSoup(quotes_page.text, "html.parser")
 
+
+def write_headers_to_csv(csv_file, csv_columns):
+    with open(csv_file, 'a') as dump:
+        writer = csv.DictWriter(dump, fieldnames=csv_columns)
+        writer.writeheader()
+
+
+def write_dict_to_csv(csv_file, csv_columns, dict_data):
+    with open(csv_file, 'a') as dump:
+        writer = csv.DictWriter(dump, fieldnames=csv_columns)
+        writer.writerow(dict_data)
+
+
+columns = ["Quote", "Author", "AuthorUrl", "AuthorBornDate", "AuthorBornPlace", "Tags", "AboutAuthor"]
+write_headers_to_csv("dump.csv", columns)
 quotes = soup.select("div.quote")
+tag_separator = "@"
 for quote in quotes:
     quote_text = quote.select("span.text")[0].text[1:-1]
     author_url = quote.select("span > a")[0].get("href")
@@ -15,7 +32,13 @@ for quote in quotes:
     author_born_date = author_soup.select("span.author-born-date")[0].text
     author_born_place = author_soup.select("span.author-born-location")[0].text[2:]
     author_about = author_soup.select("div.author-description")[0].text.strip()
-    tags = quote.select("a.tag")
-    for tag in tags:
+    quote_tags = quote.select("a.tag")
+    result_tag_str = ""
+    for tag in quote_tags:
         tag_name = tag.text
         tag_url = tag.get("href")
+        result_tag_str += tag_separator.join((tag_name, tag_url)) + "\n"
+    csv_data = {"Quote": quote_text, "Author": author_title, "AuthorUrl": author_url,
+                "AuthorBornDate": author_born_date, "AuthorBornPlace": author_born_place, "Tags": result_tag_str,
+                "AboutAuthor": author_about}
+    write_dict_to_csv("dump.csv", columns, csv_data)
