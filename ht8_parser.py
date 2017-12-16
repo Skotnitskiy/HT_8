@@ -33,7 +33,7 @@ while has_next:
             author_page = requests.get(quotes_to_scrape_url + author_url)
             author_soup = BeautifulSoup(author_page.text, "html.parser")
             author_born_date = author_soup.select("span.author-born-date")[0].text
-            author_born_place = author_soup.select("span.author-born-location")[0].text[2:]
+            author_born_place = author_soup.select("span.author-born-location")[0].text[3:]
             author_about = author_soup.select("div.author-description")[0].text.strip()
             quote_tags = quote.select("a.tag")
             result_tag_str = ""
