@@ -5,9 +5,10 @@ from bs4 import BeautifulSoup
 
 
 def write_headers_to_csv(csv_file, csv_columns):
-    with open(csv_file, 'a') as dump:
-        writer = csv.DictWriter(dump, fieldnames=csv_columns)
-        writer.writeheader()
+    with open(csv_file, 'r+') as dump:
+        if not dump.read():
+            writer = csv.DictWriter(dump, fieldnames=csv_columns)
+            writer.writeheader()
 
 
 def write_dict_to_csv(csv_file, csv_columns, dict_data):
@@ -33,7 +34,7 @@ while has_next:
     if len(quotes) > 0:
         for quote in quotes:
             author_title = quote.select("span > small")[0].text
-            if author_title.replace(" ", "-") in args.authors or len(args.authors) == 0:
+            if author_title.replace(" ", "-") in args.authors or not args.authors:  # like a len(args.authors) == 0
                 quote_text = quote.select("span.text")[0].text[1:-1]
                 author_url = quote.select("span > a")[0].get("href")
                 author_page = requests.get(quotes_to_scrape_url + author_url)
