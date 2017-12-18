@@ -1,4 +1,6 @@
 import csv
+import json
+
 import requests
 import argparse
 from bs4 import BeautifulSoup
@@ -17,6 +19,11 @@ def write_dict_to_csv(csv_file, csv_columns, dict_data):
         writer.writerow(dict_data)
 
 
+def write_json_to_txt(txt_file, js):
+    with open(txt_file, 'w') as js_dump_file:
+        json.dump(js, js_dump_file)
+
+
 args_parser = argparse.ArgumentParser()
 args_parser.add_argument('-l', action='store', nargs='+', dest='authors', default=[])
 args = args_parser.parse_args()
@@ -25,6 +32,7 @@ quotes_to_scrape_url = "http://quotes.toscrape.com"
 page_number = 1
 has_next = True
 columns = ["Quote", "Author", "AuthorUrl", "AuthorBornDate", "AuthorBornPlace", "Tags", "AboutAuthor"]
+json_data_list = []
 write_headers_to_csv("dump.csv", columns)
 tag_separator = "@"
 while has_next:
@@ -48,11 +56,13 @@ while has_next:
                     tag_name = tag.text
                     tag_url = tag.get("href")
                     result_tag_str += tag_separator.join((tag_name, tag_url)) + "\n"
-                csv_data = {"Quote": quote_text, "Author": author_title, "AuthorUrl": author_url,
-                            "AuthorBornDate": author_born_date, "AuthorBornPlace": author_born_place,
-                            "Tags": result_tag_str,
-                            "AboutAuthor": author_about}
-                write_dict_to_csv("dump.csv", columns, csv_data)
+                result_data = {"Quote": quote_text, "Author": author_title, "AuthorUrl": author_url,
+                               "AuthorBornDate": author_born_date, "AuthorBornPlace": author_born_place,
+                               "Tags": result_tag_str,
+                               "AboutAuthor": author_about}
+                json_data_list.append(result_data)
+                write_json_to_txt("dump.txt", json_data_list)
+                write_dict_to_csv("dump.csv", columns, result_data)
     else:
         has_next = False
     page_number += 1
