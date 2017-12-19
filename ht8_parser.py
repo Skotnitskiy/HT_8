@@ -4,11 +4,17 @@ import json
 import requests
 import argparse
 from bs4 import BeautifulSoup
+from openpyxl import Workbook
 
 
 def write_headers_to_csv(csv_file, csv_columns):
-    with open(csv_file, 'r+') as dump:
-        if not dump.read():
+    try:
+        with open(csv_file, 'r+') as dump:
+            if not dump.read():
+                writer = csv.DictWriter(dump, fieldnames=csv_columns)
+                writer.writeheader()
+    except FileNotFoundError:
+        with open(csv_file, 'w') as dump:
             writer = csv.DictWriter(dump, fieldnames=csv_columns)
             writer.writeheader()
 
@@ -24,6 +30,15 @@ def write_json_to_txt(txt_file, js):
         json.dump(js, js_dump_file)
 
 
+def write_rows_to_xlsx(rows):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'QuotesDump'
+    for row in rows:
+        ws.append(row)
+    wb.save("dump.xlsx")
+
+
 args_parser = argparse.ArgumentParser()
 args_parser.add_argument('-l', action='store', nargs='+', dest='authors', default=[])
 args = args_parser.parse_args()
@@ -32,6 +47,7 @@ quotes_to_scrape_url = "http://quotes.toscrape.com"
 page_number = 1
 has_next = True
 columns = ["Quote", "Author", "AuthorUrl", "AuthorBornDate", "AuthorBornPlace", "Tags", "AboutAuthor"]
+xlx_rows = [columns]
 json_data_list = []
 write_headers_to_csv("dump.csv", columns)
 tag_separator = "@"
@@ -60,9 +76,11 @@ while has_next:
                                "AuthorBornDate": author_born_date, "AuthorBornPlace": author_born_place,
                                "Tags": result_tag_str,
                                "AboutAuthor": author_about}
+                xlx_rows.append(list(result_data.values()))
                 json_data_list.append(result_data)
                 write_json_to_txt("dump.txt", json_data_list)
                 write_dict_to_csv("dump.csv", columns, result_data)
     else:
         has_next = False
     page_number += 1
+write_rows_to_xlsx(xlx_rows)
