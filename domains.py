@@ -1,3 +1,7 @@
+import random
+
+import aiohttp
+import asyncio
 import numpy as np
 from fake_useragent import UserAgent
 
@@ -23,3 +27,17 @@ def get_text(link):
 
 def generate_user_agent():
     return UserAgent().random
+
+
+async def get_pages(pg_numbers, proxy):
+    wait = 3 + random.random() * 2
+    ua = generate_user_agent()
+    url = "https://www.expireddomains.net/deleted-com-domains"
+    results = []
+    for number in pg_numbers:
+        query = {"start": number}
+        async with aiohttp.ClientSession() as session:
+            page = session.get(url, params=query, proxie={'http': proxy}, headers={'User-Agent': ua}).text()
+            results.append(page)
+            await asyncio.sleep(wait)
+    return results
