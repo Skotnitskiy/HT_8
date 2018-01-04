@@ -15,3 +15,7 @@ def get_pages_numbers():
     last = np.append(numbers[0], pages)  # add last element to array
     numbers[0] = last
     return numbers
+
+
+def get_text(link):
+    return link.get('title')
