@@ -1,5 +1,5 @@
 import numpy as np
-
+from fake_useragent import UserAgent
 
 proxies_list = ['50.203.239.27:80', '50.203.239.28:80', '192.116.142.153:8080', '50.203.239.24:80', '50.203.239.23:80',
                 '50.203.239.29:80', '50.203.239.19:80', '50.203.239.20:80', '50.203.239.21:80', '50.203.239.22:80']
@@ -19,3 +19,7 @@ def get_pages_numbers():
 
 def get_text(link):
     return link.get('title')
+
+
+def generate_user_agent():
+    return UserAgent().random
