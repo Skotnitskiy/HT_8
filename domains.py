@@ -1,20 +1,14 @@
 import random
-
-import aiohttp
-import asyncio
 import numpy as np
 import requests
 import time
-from fake_useragent import UserAgent
 
-proxies_list = ['http://50.203.239.27:80', 'http://50.203.239.28:80', 'http://192.116.142.153:8080',
-                'http://50.203.239.24:80', 'http://50.203.239.23:80', 'http://50.203.239.29:80',
-                'http://50.203.239.19:80', 'http://50.203.239.20:80', 'http://50.203.239.21:80',
-                'http://50.203.239.22:80']
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 
 def get_pages_numbers():
-    pages = 2000
+    pages = 75
     records_per_page = 25
     numbers = np.array(range(0, pages, records_per_page))
     np.random.shuffle(numbers)
@@ -38,10 +32,27 @@ def get_pages(pg_numbers):
     for number in pg_numbers:
         wait = 3 + random.random() * 2
         param = {'start': number}
-        requests.get(url=url, params=param, headers={'User-Agent': ua})
+        pg = requests.get(url=url, params=param, headers={'User-Agent': ua}).text
+        results.append(pg)
         time.sleep(wait)
-        print('page with', number, 'received')
+        print('page with number', number, 'received')
     return results
 
 
-get_pages(get_pages_numbers())
+def get_domains(pgs):
+    results = []
+    for page in pgs:
+        soup = BeautifulSoup(page, "html.parser")
+        links = soup.select("a.namelinks")
+        if links:
+            domains = list(map(get_text, links))
+            print('parsed', len(domains), 'records')
+            for domain in domains:
+                results.append(domain)
+        else:
+            print('Page is empty', page)
+    return results
+
+
+pages = get_pages(get_pages_numbers())
+print(get_domains(pages))
