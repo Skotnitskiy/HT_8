@@ -1,4 +1,5 @@
 import csv
+import json
 import random
 import numpy as np
 import requests
@@ -65,6 +66,14 @@ def write_to_csv(list_data):
         writer.writerows(dict_data)
 
 
+def write_json_to_txt(list_data):
+    txt_file = 'domains.txt'
+    data = [{'domain': data} for data in list_data]
+    with open(txt_file, 'w') as f:
+        json.dump(data, f)
+
+
 pages = get_pages(get_pages_numbers())
 domains = get_domains(pages)
 write_to_csv(domains)
+write_json_to_txt(domains)
