@@ -1,3 +1,4 @@
+import csv
 import random
 import numpy as np
 import requests
@@ -54,5 +55,16 @@ def get_domains(pgs):
     return results
 
 
+def write_to_csv(list_data):
+    csv_file = 'domains.csv'
+    csv_columns = ['domains']
+    dict_data = [{'domains': data} for data in list_data]
+    with open(csv_file, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=csv_columns)
+        writer.writeheader()
+        writer.writerows(dict_data)
+
+
 pages = get_pages(get_pages_numbers())
-print(get_domains(pages))
+domains = get_domains(pages)
+write_to_csv(domains)
