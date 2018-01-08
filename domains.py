@@ -11,7 +11,7 @@ from openpyxl import Workbook
 
 
 def get_pages_numbers():
-    pages = 75
+    pages = 2000
     records_per_page = 25
     numbers = np.array(range(0, pages, records_per_page))
     np.random.shuffle(numbers)
