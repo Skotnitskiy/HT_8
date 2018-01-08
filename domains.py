@@ -7,6 +7,7 @@ import time
 
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
+from openpyxl import Workbook
 
 
 def get_pages_numbers():
@@ -73,7 +74,18 @@ def write_json_to_txt(list_data):
         json.dump(data, f)
 
 
+def write_to_xlsx(rows):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Domains'
+    xls_rows = ['domains'] + rows
+    for r, value in zip(range(1, len(xls_rows)), xls_rows):
+        ws.cell(row=r, column=1).value = value
+    wb.save("domains.xlsx")
+
+
 pages = get_pages(get_pages_numbers())
 domains = get_domains(pages)
 write_to_csv(domains)
 write_json_to_txt(domains)
+write_to_xlsx(domains)
