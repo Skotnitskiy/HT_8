@@ -1,6 +1,8 @@
 import csv
 import json
 import random
+import sqlite3
+
 import numpy as np
 import requests
 import time
@@ -35,7 +37,12 @@ def get_pages(pg_numbers):
     for number in pg_numbers:
         wait = 3 + random.random() * 2
         param = {'start': number}
-        pg = requests.get(url=url, params=param, headers={'User-Agent': ua}).text
+        try:
+            pg = requests.get(url=url, params=param, headers={'User-Agent': ua}).text
+        except ConnectionError:
+            print(ConnectionError, "trying to connect via proxy")
+            pg = requests.get(url=url, params=param, proxies={'https': '192.116.142.153:8080'},
+                              headers={'User-Agent': ua}).text
         results.append(pg)
         time.sleep(wait)
         print('page with number', number, 'received')
