@@ -91,8 +91,24 @@ def write_to_xlsx(rows):
     wb.save("domains.xlsx")
 
 
+def write_to_db(rows):
+    con = sqlite3.connect("domains.db")
+    cursor = con.cursor()
+    sql_delete_table = "DROP TABLE IF EXISTS domains"
+    sql_create_table = "CREATE TABLE domains (domains text)"
+    cursor.execute(sql_delete_table)
+    con.commit()
+    cursor.execute(sql_create_table)
+    con.commit()
+    for domain in rows:
+        cursor.execute("INSERT INTO domains VALUES(:domains)", {'domains': domain})
+        con.commit()
+    con.close()
+
+
 pages = get_pages(get_pages_numbers())
 domains = get_domains(pages)
 write_to_csv(domains)
 write_json_to_txt(domains)
 write_to_xlsx(domains)
+write_to_db(domains)
